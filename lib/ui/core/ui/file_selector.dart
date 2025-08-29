@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import '../models/media_file.dart';
-import '../models/subfolder.dart';
+import '../../../domain/models/media_file.dart';
+import '../../../domain/models/subfolder.dart';
 
 class FileSelector extends StatelessWidget {
   final int selectedTab;
