@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Clínica Boa Saúde",
+    "description": "Atendimento geral de segunda a sexta, das 8h às 18h."
+  },
+  {
+    "name": "Cartório São Pedro",
+    "description": "Emissão de documentos, autenticação e registros públicos."
+  },
+  {
+    "name": "Abudab Nestor",
+    "description": "Consultor de viagens ao orinte médio"
+  },
+  {
+    "name": "Abudab Nestor",
+    "description": "agricultor de pecuaria caseira"
+  },
+  {
+    "name": "Abudab Nestor",
+    "description": "cuidados de animais"
+  }
+]
