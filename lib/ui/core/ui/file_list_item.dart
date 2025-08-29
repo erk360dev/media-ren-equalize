@@ -42,7 +42,7 @@ class _FileListItemState extends State<FileListItem> {
   @override
   Widget build(BuildContext context) {
     return Card(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
         color: Colors.grey[800], // Lighter background matching app theme
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -50,6 +50,7 @@ class _FileListItemState extends State<FileListItem> {
           side: BorderSide(color: Colors.grey[600]!, width: 1), // Gray border
         ),
         child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           leading: Icon(
             widget.path.endsWith('.mp3') || widget.path.endsWith('.wav')
                 ? Icons.audiotrack

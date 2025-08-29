@@ -33,11 +33,6 @@ class _RenameScreenState extends State<RenameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[850],
-      appBar: AppBar(
-        title: const Text('Rename Files', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.grey[850],
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
       body: Column(
         children: [
           // Switch for regex/pattern selection
@@ -143,118 +138,86 @@ class _RenameScreenState extends State<RenameScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Rename Method and Operation with Apply button on the right
-                Row(
+                // Rename Method and Operation
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left side - Rename Method and Operation
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Rename Method:', style: TextStyle(color: Colors.white)),
-                          Row(
-                            children: [
-                              Radio<String>(
-                                value: 'literal',
-                                groupValue: renameMethod,
-                                onChanged: (value) {
-                                  setState(() {
-                                    renameMethod = value!;
-                                  });
-                                },
-                              ),
-                              const Text('Literal', style: TextStyle(color: Colors.white)),
-                              Radio<String>(
-                                value: 'regex',
-                                groupValue: renameMethod,
-                                onChanged: (value) {
-                                  setState(() {
-                                    renameMethod = value!;
-                                  });
-                                },
-                              ),
-                              const Text('Regex', style: TextStyle(color: Colors.white)),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Radio<String>(
-                                value: 'predefined',
-                                groupValue: renameMethod,
-                                onChanged: (value) {
-                                  setState(() {
-                                    renameMethod = value!;
-                                  });
-                                },
-                              ),
-                              const Text('Predefined', style: TextStyle(color: Colors.white)),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          const Text('Rename Operation:', style: TextStyle(color: Colors.white)),
-                          Row(
-                            children: [
-                              Radio<String>(
-                                value: 'remove',
-                                groupValue: renameOperation,
-                                onChanged: (value) {
-                                  setState(() {
-                                    renameOperation = value!;
-                                  });
-                                },
-                              ),
-                              const Text('Remove', style: TextStyle(color: Colors.white)),
-                              Radio<String>(
-                                value: 'replace',
-                                groupValue: renameOperation,
-                                onChanged: (value) {
-                                  setState(() {
-                                    renameOperation = value!;
-                                  });
-                                },
-                              ),
-                              const Text('Replace', style: TextStyle(color: Colors.white)),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Radio<String>(
-                                value: 'add',
-                                groupValue: renameOperation,
-                                onChanged: (value) {
-                                  setState(() {
-                                    renameOperation = value!;
-                                  });
-                                },
-                              ),
-                              const Text('Add', style: TextStyle(color: Colors.white)),
-                            ],
-                          ),
-                        ],
-                      ),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: const Text('Rename Method:', style: TextStyle(color: Colors.white)),
+                        ),
+                        Radio<String>(
+                          value: 'literal',
+                          groupValue: renameMethod,
+                          onChanged: (value) {
+                            setState(() {
+                              renameMethod = value!;
+                            });
+                          },
+                        ),
+                        const Text('Literal', style: TextStyle(color: Colors.white)),
+                        Radio<String>(
+                          value: 'regex',
+                          groupValue: renameMethod,
+                          onChanged: (value) {
+                            setState(() {
+                              renameMethod = value!;
+                            });
+                          },
+                        ),
+                        const Text('Regex', style: TextStyle(color: Colors.white)),
+                        Radio<String>(
+                          value: 'predefined',
+                          groupValue: renameMethod,
+                          onChanged: (value) {
+                            setState(() {
+                              renameMethod = value!;
+                            });
+                          },
+                        ),
+                        const Text('Predefined', style: TextStyle(color: Colors.white)),
+                      ],
                     ),
-                    // Right side - Apply button
-                    const SizedBox(width: 16),
-                    Container(
-                      width: 80,
-                      height: 80,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Apply rename operation
-                          _showConfirmationDialog();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: const Text('Rename Operation:', style: TextStyle(color: Colors.white)),
                         ),
-                        child: const Text(
-                          'Apply',
-                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        Radio<String>(
+                          value: 'remove',
+                          groupValue: renameOperation,
+                          onChanged: (value) {
+                            setState(() {
+                              renameOperation = value!;
+                            });
+                          },
                         ),
-                      ),
+                        const Text('Remove', style: TextStyle(color: Colors.white)),
+                        Radio<String>(
+                          value: 'replace',
+                          groupValue: renameOperation,
+                          onChanged: (value) {
+                            setState(() {
+                              renameOperation = value!;
+                            });
+                          },
+                        ),
+                        const Text('Replace', style: TextStyle(color: Colors.white)),
+                        Radio<String>(
+                          value: 'add',
+                          groupValue: renameOperation,
+                          onChanged: (value) {
+                            setState(() {
+                              renameOperation = value!;
+                            });
+                          },
+                        ),
+                        const Text('Add', style: TextStyle(color: Colors.white)),
+                      ],
                     ),
                   ],
                 ),
@@ -263,6 +226,31 @@ class _RenameScreenState extends State<RenameScreen> {
           ),
           
           const SizedBox(height: 20),
+          
+          // Apply button
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                // Apply rename operation
+                _showConfirmationDialog();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Apply',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 10),
           
           // File list at the bottom
           Expanded(
@@ -280,6 +268,7 @@ class _RenameScreenState extends State<RenameScreen> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: ListView.builder(
+                        padding: EdgeInsets.zero, // Remove default padding
                         itemCount: widget.files.length,
                         itemBuilder: (context, index) {
                           final file = widget.files[index];

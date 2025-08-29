@@ -36,16 +36,12 @@ class _EqualizeScreenState extends State<EqualizeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[850],
-      appBar: AppBar(
-        title: const Text('Equalize Files', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.grey[850],
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Equalizer controls
+            const SizedBox(height: 20),
+            // Audio Equalizer title with some space from top
             const Text(
               'Audio Equalizer',
               style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
@@ -109,7 +105,10 @@ class _EqualizeScreenState extends State<EqualizeScreen> {
             
             const SizedBox(height: 30),
             
-            // Apply button
+            // Spacer to center the Apply button
+            const Spacer(flex: 1),
+            
+            // Apply button in center area
             ElevatedButton(
               onPressed: _showEqualizationConfirmationDialog,
               style: ElevatedButton.styleFrom(
@@ -120,53 +119,55 @@ class _EqualizeScreenState extends State<EqualizeScreen> {
               child: const Text('Apply Equalization'),
             ),
             
-            const SizedBox(height: 20),
+            // Spacer to push file list to bottom
+            const Spacer(flex: 1),
             
-            // File list
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Files to Equalize:', style: TextStyle(color: Colors.white, fontSize: 16)),
-                  const SizedBox(height: 10),
-                  Container(
-                    height: 300, // Fixed height for approximately 10 items
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[600]!, width: 1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: ListView.builder(
-                      itemCount: widget.files.length,
-                      itemBuilder: (context, index) {
-                          final file = widget.files[index];
-                          return GestureDetector(
-                            onTap: () {
-                              _showFileDetailsDialog(file);
-                            },
-                            child: Container(
-                              height: 30,
-                              margin: const EdgeInsets.symmetric(vertical: 2),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[800],
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  file.name,
-                                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+            // File list at the bottom
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Files to Equalize:', style: TextStyle(color: Colors.white, fontSize: 16)),
+                const SizedBox(height: 10),
+                Container(
+                  height: 340, // Height for exactly 10 items (34px per item)
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey[600]!, width: 1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero, // Remove default padding
+                    itemCount: widget.files.length,
+                    itemBuilder: (context, index) {
+                        final file = widget.files[index];
+                        return GestureDetector(
+                          onTap: () {
+                            _showFileDetailsDialog(file);
+                          },
+                          child: Container(
+                            height: 30,
+                            margin: const EdgeInsets.symmetric(vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[800],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                file.name,
+                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
+                  ),
                 ],
               ),
-            ),
+            
+            const SizedBox(height: 10),
           ],
         ),
       ),
@@ -178,11 +179,7 @@ class _EqualizeScreenState extends State<EqualizeScreen> {
         onTap: (index) {
           if (index == 0) {
             // Navigate to Home
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
-              (route) => false,
-            );
+            Navigator.pop(context);
           } else if (index == 1) {
             // Navigate to Rename
             Navigator.pushReplacement(
