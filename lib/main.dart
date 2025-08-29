@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'ui/home/widgets/home_screen.dart';
 
 void main() {
   runApp(const BMOrgApp());

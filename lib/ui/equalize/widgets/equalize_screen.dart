@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/media_file.dart';
+import '../../../domain/models/media_file.dart';
+import '../../home/widgets/home_screen.dart';
+import '../../rename/widgets/rename_screen.dart';
 
 class EqualizeScreen extends StatefulWidget {
   final List<MediaFile> files;
@@ -127,15 +129,15 @@ class _EqualizeScreenState extends State<EqualizeScreen> {
                 children: [
                   const Text('Files to Equalize:', style: TextStyle(color: Colors.white, fontSize: 16)),
                   const SizedBox(height: 10),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[600]!, width: 1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: ListView.builder(
-                        itemCount: widget.files.length,
-                        itemBuilder: (context, index) {
+                  Container(
+                    height: 300, // Fixed height for approximately 10 items
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[600]!, width: 1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: ListView.builder(
+                      itemCount: widget.files.length,
+                      itemBuilder: (context, index) {
                           final file = widget.files[index];
                           return GestureDetector(
                             onTap: () {
@@ -162,12 +164,50 @@ class _EqualizeScreenState extends State<EqualizeScreen> {
                         },
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.grey[900],
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        currentIndex: 2, // Equalize tab
+        onTap: (index) {
+          if (index == 0) {
+            // Navigate to Home
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              (route) => false,
+            );
+          } else if (index == 1) {
+            // Navigate to Rename
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RenameScreen(files: widget.files),
+              ),
+            );
+          }
+          // index == 2 is current screen (Equalize), do nothing
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.edit),
+            label: 'Rename',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.equalizer),
+            label: 'Equalize',
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/media_file.dart';
+import '../../../domain/models/media_file.dart';
+import '../../equalize/widgets/equalize_screen.dart';
 
 class RenameScreen extends StatefulWidget {
   final List<MediaFile> files;
@@ -17,6 +18,7 @@ class _RenameScreenState extends State<RenameScreen> {
   final TextEditingController _comboController = TextEditingController();
   String renameMethod = 'literal'; // literal, regex, predefined
   String renameOperation = 'replace'; // remove, replace, add
+  int currentNavIndex = 1; // Set to Rename tab
   
   final List<String> predefinedPatterns = [
     'Remove spaces',
@@ -307,6 +309,42 @@ class _RenameScreenState extends State<RenameScreen> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.grey[900],
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey[400],
+        currentIndex: currentNavIndex,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.edit),
+            label: 'Rename',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.equalizer),
+            label: 'Equalize',
+          ),
+        ],
+        onTap: (index) {
+          if (index == 0) {
+            // Navigate to home screen
+            Navigator.pop(context);
+          } else if (index == 1) {
+            // Stay on rename screen - no action needed
+          } else if (index == 2) {
+            // Navigate to equalize screen
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EqualizeScreen(files: widget.files),
+              ),
+            );
+          }
+        },
       ),
     );
   }

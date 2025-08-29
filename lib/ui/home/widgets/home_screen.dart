@@ -1,12 +1,11 @@
-
 import 'package:flutter/material.dart';
-import '../models/media_file.dart';
-import '../models/subfolder.dart';
-import '../widgets/file_selector.dart';
-import '../widgets/file_list_view.dart';
-import '../widgets/config_panel.dart';
-import 'rename_screen.dart';
-import 'equalize_screen.dart';
+import '../../../domain/models/media_file.dart';
+import '../../../domain/models/subfolder.dart';
+import '../../core/ui/file_selector.dart';
+import '../../core/ui/file_list_view.dart';
+import '../../core/ui/config_panel.dart';
+import '../../rename/widgets/rename_screen.dart';
+import '../../equalize/widgets/equalize_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,9 +19,10 @@ class _HomeScreenState extends State<HomeScreen> {
   int currentNavIndex = 0; // For bottom navigation
   List<MediaFile> selectedFiles = [];
   List<Subfolder> selectedSubfolders = [];
-  List<MediaFile> filesFromSubfolders = []; // Hidden list for files from subfolders
+  List<MediaFile> filesFromSubfolders =
+      []; // Hidden list for files from subfolders
+  bool _isFromFolderSelection = false; // Track if files are from folder selection
 
-  
   // Variables to track renaming pattern - now disconnected from functionality
   String _renamingPattern = '';
   bool _showRenamingPreview = false;
@@ -32,7 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[850],
       appBar: AppBar(
-        title: const Text('FILE SELECTOR & PROCESSOR', style: TextStyle(color: Colors.white)),
+        title: const Text('FILE SELECTOR & PROCESSOR',
+            style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.grey[850],
       ),
       body: Column(
@@ -40,11 +41,12 @@ class _HomeScreenState extends State<HomeScreen> {
           // Text input area with preview button
           Container(
             margin: const EdgeInsets.all(16.0),
-            child: Column(  
+            child: Column(
               children: [
-
                 // Preview button removed
-                if (false && selectedFiles.isNotEmpty) // Preview section is now always hidden
+                if (false &&
+                    selectedFiles
+                        .isNotEmpty) // Preview section is now always hidden
                   Container(
                     margin: const EdgeInsets.only(top: 8),
                     padding: const EdgeInsets.all(8),
@@ -54,25 +56,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     height: 100,
                     child: ListView.builder(
-                      itemCount: selectedFiles.length > 3 ? 3 : selectedFiles.length,
+                      itemCount:
+                          selectedFiles.length > 3 ? 3 : selectedFiles.length,
                       itemBuilder: (context, index) {
                         final file = selectedFiles[index];
                         final originalName = file.name;
-                        final extension = originalName.contains('.') ? 
-                            originalName.substring(originalName.lastIndexOf('.')) : '';
-                        final nameWithoutExt = originalName.contains('.') ? 
-                            originalName.substring(0, originalName.lastIndexOf('.')) : originalName;
-                        
+                        final extension = originalName.contains('.')
+                            ? originalName
+                                .substring(originalName.lastIndexOf('.'))
+                            : '';
+                        final nameWithoutExt = originalName.contains('.')
+                            ? originalName.substring(
+                                0, originalName.lastIndexOf('.'))
+                            : originalName;
+
                         String newName = _renamingPattern;
                         newName = newName.replaceAll('{name}', nameWithoutExt);
                         newName = newName.replaceAll('{ext}', extension);
                         newName = newName.replaceAll('{folder}', file.folder);
-                        
+
                         return ListTile(
                           dense: true,
                           title: Text(
                             '$originalName → $newName',
-                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12),
                           ),
                         );
                       },
@@ -81,30 +89,34 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          
+
           // File selector buttons
           FileSelector(
             selectedTab: selectedTab,
             onFilesSelected: (files) {
               setState(() {
                 selectedFiles = files;
+                _isFromFolderSelection = false; // Files selected via Audio/Video buttons
               });
             },
             onFoldersSelected: (subfolders, filesFromSubfolders) {
               setState(() {
                 selectedSubfolders = subfolders;
                 this.filesFromSubfolders = filesFromSubfolders;
+                _isFromFolderSelection = true; // Files selected via Folder button
                 // Show subfolders in the main list instead of files
-                selectedFiles = subfolders.map((subfolder) => MediaFile(
-                  name: subfolder.name,
-                  folder: 'Subfolder',
-                  path: subfolder.path,
-                  index: subfolder.index,
-                )).toList();
+                selectedFiles = subfolders
+                    .map((subfolder) => MediaFile(
+                          name: subfolder.name,
+                          folder: 'Subfolder',
+                          path: subfolder.path,
+                          index: subfolder.index,
+                        ))
+                    .toList();
               });
             },
           ),
-          
+
           // File list
           Expanded(
             child: selectedFiles.isEmpty
@@ -116,20 +128,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 : FileListView(
                     files: selectedFiles,
+                    showCheckboxes: _isFromFolderSelection,
                     onItemTapped: (file) {
                       debugPrint("Clicked: \${file.name}");
                     },
                   ),
-          ),
-          
-          // Bottom panel
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              children: [
-                const Expanded(child: ConfigPanel()),
-              ],
-            ),
           ),
         ],
       ),
@@ -163,7 +166,10 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => RenameScreen(files: filesFromSubfolders.isNotEmpty ? filesFromSubfolders : selectedFiles),
+                builder: (context) => RenameScreen(
+                    files: filesFromSubfolders.isNotEmpty
+                        ? filesFromSubfolders
+                        : selectedFiles),
               ),
             ).then((_) {
               setState(() {
@@ -175,7 +181,10 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => EqualizeScreen(files: filesFromSubfolders.isNotEmpty ? filesFromSubfolders : selectedFiles),
+                builder: (context) => EqualizeScreen(
+                    files: filesFromSubfolders.isNotEmpty
+                        ? filesFromSubfolders
+                        : selectedFiles),
               ),
             ).then((_) {
               setState(() {
