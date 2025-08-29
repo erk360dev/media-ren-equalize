@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'ui/home/widgets/home_screen.dart';
 
 void main() {
-  runApp(const BMOrgApp());
+  runApp(const RenMeqBat());
 }
 
-class BMOrgApp extends StatelessWidget {
-  const BMOrgApp({super.key});
+class RenMeqBat extends StatelessWidget {
+  const RenMeqBat({super.key});
 
   @override
   Widget build(BuildContext context) {
