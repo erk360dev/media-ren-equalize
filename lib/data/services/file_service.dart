@@ -17,12 +17,11 @@ class FileService {
           .toList();
 
       return files.map((file) {
-        final stat = file.statSync();
         return MediaFile(
+          folder: file.parent.path,
+          index: files.indexOf(file),
           name: file.uri.pathSegments.last,
           path: file.path,
-          size: stat.size,
-          lastModified: stat.modified,
         );
       }).toList();
     } catch (e) {
@@ -45,6 +44,7 @@ class FileService {
 
       return subfolders.map((folder) {
         return Subfolder(
+          index: subfolders.indexOf(folder),
           name: folder.uri.pathSegments[folder.uri.pathSegments.length - 2],
           path: folder.path,
         );
