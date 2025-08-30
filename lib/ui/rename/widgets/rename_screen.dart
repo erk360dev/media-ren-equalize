@@ -21,13 +21,41 @@ class _RenameScreenState extends State<RenameScreen> {
   int currentNavIndex = 1; // Set to Rename tab
   
   final List<String> predefinedPatterns = [
-    'Remove spaces',
-    'Add prefix',
-    'Add suffix',
-    'Replace underscores with spaces',
-    'Lowercase all',
-    'Uppercase all',
+    'Special characters',
+    'Start/End space',
+    'Double spaces',
+    'Spaces',
+    'Album name',
+    'Year',
+    'Minus symbol',
+    'Numbers',
+    'Underscore',
+    'Letters',
+    'Band/artist name (Metadata)',
+    'Whole',
   ];
+  
+  final List<String> renameOptions = [
+    'Literal',
+    'Underscore by Space',
+    'Directory',
+    'Album',
+    'Artist',
+    'Track',
+    'Year',
+    'Counter',
+    'Grandfather Dir.',
+    'Grandfather and Father Dir.', //use literal track (Grandfather - Father - [Track/name] 01.mp3)
+  ];
+  
+  @override
+  void initState() {
+    super.initState();
+    // Reset renameMethod when useRegex changes
+    if (!useRegex && renameMethod == 'regex') {
+      renameMethod = 'literal';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +75,10 @@ class _RenameScreenState extends State<RenameScreen> {
                   onChanged: (value) {
                     setState(() {
                       useRegex = value;
+                      // Reset renameMethod if regex is disabled and currently selected
+                      if (!value && renameMethod == 'regex') {
+                        renameMethod = 'literal';
+                      }
                     });
                   },
                 ),
@@ -54,63 +86,76 @@ class _RenameScreenState extends State<RenameScreen> {
             ),
           ),
           
-          // Regex or Pattern selection section
+          // Pattern selection section based on rename method
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: useRegex
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Regex Pattern:', style: TextStyle(color: Colors.white)),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _regexController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: 'Enter regex pattern',
-                          hintStyle: TextStyle(color: Colors.grey[400]),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey[600]!),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey[600]!),
-                          ),
-                        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (renameMethod == 'predefined') ...[
+                  const Text('Predefined Patterns:', style: TextStyle(color: Colors.white)),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: selectedPattern.isEmpty ? null : selectedPattern,
+                    dropdownColor: Colors.grey[800],
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[600]!),
                       ),
-
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Predefined Patterns:', style: TextStyle(color: Colors.white)),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: selectedPattern.isEmpty ? null : selectedPattern,
-                        dropdownColor: Colors.grey[800],
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey[600]!),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey[600]!),
-                          ),
-                        ),
-                        items: predefinedPatterns.map((pattern) {
-                          return DropdownMenuItem(
-                            value: pattern,
-                            child: Text(pattern),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedPattern = value ?? '';
-                          });
-                        },
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[600]!),
                       ),
-                    ],
+                    ),
+                    items: predefinedPatterns.map((pattern) {
+                      return DropdownMenuItem(
+                        value: pattern,
+                        child: Text(pattern),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedPattern = value ?? '';
+                      });
+                    },
                   ),
+                ] else if (renameMethod == 'regex') ...[
+                  const Text('Regex Pattern:', style: TextStyle(color: Colors.white)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _regexController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Enter regex pattern',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[600]!),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[600]!),
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  const Text('Literal Pattern:', style: TextStyle(color: Colors.white)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _regexController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Enter literal text',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[600]!),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey[600]!),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
           
           const SizedBox(height: 20),
@@ -121,22 +166,62 @@ class _RenameScreenState extends State<RenameScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Rename Text:', style: TextStyle(color: Colors.white)),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _comboController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Enter text for renaming',
-                    hintStyle: TextStyle(color: Colors.grey[400]),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey[600]!),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey[600]!),
-                    ),
+                // Only show rename text field if operation is not 'remove'
+                if (renameOperation != 'remove') ...[
+                  const Text('Rename Text:', style: TextStyle(color: Colors.white)),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _comboController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: 'Enter text for rename',
+                            hintStyle: TextStyle(color: Colors.grey[400]),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[600]!),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey[600]!),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: PopupMenuButton<String>(
+                          icon: Icon(Icons.arrow_drop_down_outlined, color: Colors.grey[400]),
+                          color: Colors.grey[800],
+                          onSelected: (String value) {
+                            setState(() {
+                              if (value == 'literal') {
+                                _comboController.clear();
+                              } else {
+                                _comboController.text = value;
+                              }
+                            });
+                          },
+                          itemBuilder: (BuildContext context) {
+                            return renameOptions.map((String option) {
+                              return PopupMenuItem<String>(
+                                value: option,
+                                child: Text(
+                                  option,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              );
+                            }).toList();
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                ],
                 const SizedBox(height: 10),
                 // Rename Method and Operation
                 Column(
@@ -158,16 +243,19 @@ class _RenameScreenState extends State<RenameScreen> {
                           },
                         ),
                         const Text('Literal', style: TextStyle(color: Colors.white)),
-                        Radio<String>(
-                          value: 'regex',
-                          groupValue: renameMethod,
-                          onChanged: (value) {
-                            setState(() {
-                              renameMethod = value!;
-                            });
-                          },
-                        ),
-                        const Text('Regex', style: TextStyle(color: Colors.white)),
+                        // Only show Regex radio when useRegex is true
+                        if (useRegex) ...[
+                          Radio<String>(
+                            value: 'regex',
+                            groupValue: renameMethod,
+                            onChanged: (value) {
+                              setState(() {
+                                renameMethod = value!;
+                              });
+                            },
+                          ),
+                          const Text('Regex', style: TextStyle(color: Colors.white)),
+                        ],
                         Radio<String>(
                           value: 'predefined',
                           groupValue: renameMethod,
@@ -216,7 +304,7 @@ class _RenameScreenState extends State<RenameScreen> {
                             });
                           },
                         ),
-                        const Text('Add', style: TextStyle(color: Colors.white)),
+                        const Text('Insert', style: TextStyle(color: Colors.white)),
                       ],
                     ),
                   ],
@@ -338,6 +426,100 @@ class _RenameScreenState extends State<RenameScreen> {
     );
   }
 
+  void _previewRename() {
+    setState(() {
+      // Update file names with preview based on rename patterns
+      for (int i = 0; i < widget.files.length; i++) {
+        final file = widget.files[i];
+        String newName = _generatePreviewName(file, i);
+        // Create a new file object with the preview name
+        widget.files[i] = MediaFile(
+          name: newName,
+          path: file.path,
+          folder: file.folder,
+          index: file.index,
+          isChecked: file.isChecked,
+        );
+      }
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Preview updated with rename patterns!'),
+        backgroundColor: Colors.orange,
+      ),
+    );
+  }
+  
+  String _generatePreviewName(MediaFile file, int index) {
+    String renameText = _comboController.text;
+    String originalName = file.name;
+    
+    // Extract extension
+    String extension = originalName.contains('.')
+        ? originalName.substring(originalName.lastIndexOf('.'))
+        : '';
+    String nameWithoutExt = originalName.contains('.')
+        ? originalName.substring(0, originalName.lastIndexOf('.'))
+        : originalName;
+    
+    if (renameOperation == 'remove') {
+      // Remove operation - apply pattern removal
+      if (renameMethod == 'literal') {
+        return originalName.replaceAll(_regexController.text, '');
+      } else if (renameMethod == 'regex') {
+        try {
+          return originalName.replaceAll(RegExp(_regexController.text), '');
+        } catch (e) {
+          return originalName; // Return original if regex is invalid
+        }
+      }
+      return originalName;
+    } else if (renameOperation == 'replace') {
+      // Replace operation
+      String newName = renameText;
+      
+      // Replace placeholders
+      newName = newName.replaceAll('{name}', nameWithoutExt);
+      newName = newName.replaceAll('{ext}', extension.replaceAll('.', ''));
+      newName = newName.replaceAll('{folder}', file.folder);
+      newName = newName.replaceAll('{counter}', (index + 1).toString().padLeft(2, '0'));
+      
+      // Handle predefined patterns
+      if (renameMethod == 'predefined' && selectedPattern.isNotEmpty) {
+        newName = _applyPredefinedPattern(originalName, selectedPattern);
+      }
+      
+      return newName + extension;
+    } else if (renameOperation == 'add') {
+      // Insert operation - add rename text to original name
+      return nameWithoutExt + '_' + renameText + extension;
+    }
+    
+    return originalName;
+  }
+  
+  String _applyPredefinedPattern(String originalName, String pattern) {
+    switch (pattern) {
+      case 'Special characters':
+        return originalName.replaceAll(RegExp(r'[^a-zA-Z0-9\s\.]'), '');
+      case 'Start/End space':
+        return originalName.trim();
+      case 'Double spaces':
+        return originalName.replaceAll(RegExp(r'\s+'), ' ');
+      case 'Spaces':
+        return originalName.replaceAll(' ', '_');
+      case 'Underscore':
+        return originalName.replaceAll('_', ' ');
+      case 'Numbers':
+        return originalName.replaceAll(RegExp(r'\d'), '');
+      case 'Letters':
+        return originalName.replaceAll(RegExp(r'[a-zA-Z]'), '');
+      default:
+        return originalName;
+    }
+  }
+
   void _showConfirmationDialog() {
     showDialog(
       context: context,
@@ -355,6 +537,13 @@ class _RenameScreenState extends State<RenameScreen> {
                 Navigator.of(context).pop();
               },
               child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _previewRename();
+              },
+              child: const Text('Preview', style: TextStyle(color: Colors.white)),
             ),
             TextButton(
               onPressed: () {
