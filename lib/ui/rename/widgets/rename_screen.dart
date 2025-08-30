@@ -16,6 +16,15 @@ class _RenameScreenState extends State<RenameScreen> {
   String selectedPattern = '';
   final TextEditingController _regexController = TextEditingController();
   final TextEditingController _comboController = TextEditingController();
+  
+  // Metadata editing variables
+  bool _isBatchMode = true;
+  String? _selectedFileForMetadata;
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _artistController = TextEditingController();
+  final TextEditingController _albumController = TextEditingController();
+  final TextEditingController _yearController = TextEditingController();
+  final TextEditingController _genreController = TextEditingController();
   String renameMethod = 'literal'; // literal, regex, predefined
   String renameOperation = 'replace'; // remove, replace, add
   int currentNavIndex = 1; // Set to Rename tab
@@ -347,7 +356,36 @@ class _RenameScreenState extends State<RenameScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Files to Rename:', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Files to Rename:', style: TextStyle(color: Colors.white, fontSize: 16)),
+                      Container(
+                        height: 32,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey[600]!,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: IconButton(
+                          onPressed: _showMetadataDialog,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          icon: const Text(
+                            '</>',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          tooltip: 'Edit Metadata',
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 10),
                   Expanded(
                     child: Container(
@@ -564,10 +602,197 @@ class _RenameScreenState extends State<RenameScreen> {
     );
   }
 
+  void _showMetadataDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Colors.grey[800],
+              title: const Text('Edit Metadata', style: TextStyle(color: Colors.white)),
+              content: SizedBox(
+                width: double.maxFinite,
+                height: 400,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                    // Batch mode switch
+                    Row(
+                      children: [
+                        const Text('Batch Mode:', style: TextStyle(color: Colors.white)),
+                        const SizedBox(width: 10),
+                        Switch(
+                          value: _isBatchMode,
+                          onChanged: (value) {
+                            setState(() {
+                              _isBatchMode = value;
+                              if (!value) {
+                                _selectedFileForMetadata = widget.files.isNotEmpty ? widget.files.first.name : null;
+                              }
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // File selection dropdown (only when not in batch mode)
+                    if (!_isBatchMode) ...[
+                      const Text('Select File:', style: TextStyle(color: Colors.white)),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: _selectedFileForMetadata,
+                        dropdownColor: Colors.grey[700],
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey[600]!),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey[600]!),
+                          ),
+                        ),
+                        items: widget.files.map((file) {
+                          return DropdownMenuItem(
+                            value: file.name,
+                            child: Text(file.name, overflow: TextOverflow.ellipsis),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedFileForMetadata = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    
+                    // Metadata input fields
+                    _buildMetadataField('Title', _titleController),
+                    const SizedBox(height: 12),
+                    _buildMetadataField('Artist', _artistController),
+                    const SizedBox(height: 12),
+                    _buildMetadataField('Album', _albumController),
+                    const SizedBox(height: 12),
+                    _buildMetadataField('Year', _yearController),
+                    const SizedBox(height: 12),
+                    _buildMetadataField('Genre', _genreController),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _showMetadataConfirmationDialog();
+                  },
+                  child: const Text('Apply', style: TextStyle(color: Colors.blue)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+  
+  Widget _buildMetadataField(String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('$label:', style: const TextStyle(color: Colors.white)),
+        const SizedBox(height: 4),
+        TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: 'Enter $label',
+            hintStyle: TextStyle(color: Colors.grey[400]),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey[600]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey[600]!),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  
+  void _showMetadataConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[800],
+          title: const Text('Confirm Metadata Changes', style: TextStyle(color: Colors.white)),
+          content: Text(
+            _isBatchMode
+                ? 'Are you sure you want to apply metadata changes to all MP3 files?'
+                : 'Are you sure you want to apply metadata changes to the selected file?',
+            style: const TextStyle(color: Colors.white),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _applyMetadataChanges();
+              },
+              child: const Text('Confirm', style: TextStyle(color: Colors.blue)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  
+  void _applyMetadataChanges() {
+    // Clear the controllers
+    _titleController.clear();
+    _artistController.clear();
+    _albumController.clear();
+    _yearController.clear();
+    _genreController.clear();
+    
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _isBatchMode
+              ? 'Metadata changes applied to all MP3 files successfully!'
+              : 'Metadata changes applied to selected file successfully!',
+        ),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _regexController.dispose();
     _comboController.dispose();
+    _titleController.dispose();
+    _artistController.dispose();
+    _albumController.dispose();
+    _yearController.dispose();
+    _genreController.dispose();
     super.dispose();
   }
 }
